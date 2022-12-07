@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:avatar_glow/avatar_glow.dart';
+import 'package:dronomania/cutting.dart';
 import 'package:flutter/material.dart';
 
 import 'globals.dart';
@@ -103,7 +105,7 @@ class _MakeHamburgerState extends State<MakeHamburger> {
             child: iw,
             onTap: (){
               print(ingredientOnMap);
-              _showIngredient(ingredientOnMap.ingredient);
+              showIngredient(context, ingredientOnMap.ingredient);
             },
             onDoubleTap: (){
               if (ingredientOnMap.isEnabled) {
@@ -139,9 +141,12 @@ class _MakeHamburgerState extends State<MakeHamburger> {
             onPanEnd: (DragEndDetails details){
               printD('onPanEnd1 idx $idx lastWidx $lastWidx');
               IngredientOnMap ingredientOnMap = ingredientsOnMap[lastWidx];
-              printD('pos ${ingredientOnMap.position} of $ingredientOnMap idx $lastWidx}');
-              if (ingredientOnMap.position.dy < glCartSize.height) {
-                if (ingredientOnMap.position.dx > glCartX1 && ingredientOnMap.position.dx < glCartX2) {
+              printD('pos ${ingredientOnMap.position} of $ingredientOnMap '
+                  'idx $lastWidx}');
+              printD('glCartSize.height ${glCartSize.height}');
+              if (ingredientOnMap.position.dy < mapOffset.dy + glCartSize.height) {
+                printD('1');
+                if (ingredientOnMap.position.dx > mapOffset.dx+glCartX1 && ingredientOnMap.position.dx < mapOffset.dx+glCartX2) {
                   if (ingredientsInCart.length < 15) {
                     if (ingredientOnMap.isEnabled) {
                       _addToCartIngredient(ingredientOnMap);
@@ -233,6 +238,17 @@ class _MakeHamburgerState extends State<MakeHamburger> {
     return wl;
   }
 
+  _go(){
+    glCartIngredients = [];
+    ingredientsInCart.forEach((element) {
+      glCartIngredients.add(element.ingredient);
+    });
+    glProductToMake = productToMake;
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const Cutting())
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     PreferredSizeWidget appBarW = AppBar(
@@ -291,42 +307,20 @@ class _MakeHamburgerState extends State<MakeHamburger> {
           draggingIngredientW(),
         ],
       ),
-      floatingActionButton: Container(
-        width: 80, height: 80,
-        child: FloatingActionButton(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset('assets/images/goCooking.webp'),
+      floatingActionButton: GestureDetector(
+        onTap: _go,
+        child: AvatarGlow(
+          endRadius: 50,
+          child: ClipOval(
+            child: Container(
+              width: 80, height: 80,
+              color: Colors.blue.withOpacity(0.6),
+              padding: const EdgeInsets.all(12.0),
+              child: Image.asset('assets/images/goCooking.webp', width: 70, height: 70,),
+            ),
           ),
-          onPressed: _go,
         ),
       ),
-    );
-  }
-
-  _go(){
-    //TODO
-  }
-
-  void _showIngredient(Ingredient ingredient) {
-    //speak(ingredient.name);
-    if (ingredient.img == '') {
-      return;
-    }
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(ingredient.name, textScaleFactor: 2, textAlign: TextAlign.center,),
-                SizedBox(height: 15,),
-                Image.asset('assets/images/${ingredient.img}'),
-              ],
-            ),
-          );
-        }
     );
   }
 }

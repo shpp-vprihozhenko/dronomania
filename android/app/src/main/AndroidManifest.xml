@@ -2,9 +2,11 @@
     package="com.example.dronomania">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
    <application
-        android:label="dronomania"
+        android:label="Повар"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

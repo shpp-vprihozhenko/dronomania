@@ -32,13 +32,11 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  image: ^3.2.2
-  flutter_bloc: ^8.1.1
-  just_audio: ^0.9.29
   url_launcher: ^6.1.6
-  http:
   avatar_glow: 2.0.2
   shared_preferences: ^2.0.15
+  path_provider: ^2.0.11
+  share_extend: ^2.0.0
 
 dev_dependencies:
   flutter_test:

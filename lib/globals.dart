@@ -1,30 +1,26 @@
+/*
+- строгая / нестрогая готовка - только то, что в списке или рандом
+- нарезка - почти всё.
+- ресайз - без выделения?
+- полить майнезом, кетчупом
+- посолить
+- название и иконка
+ */
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:ui' as ui;
-import 'package:image/image.dart' as imgLib;
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
-enum TankModel {
-  baggie,
-  bmp,
-  mammoth,
-  mlrs,
-  sau,
-  type1,
-  type2
-}
 
 String nodeEndPoint = 'http://173.212.250.234:6641';
 Size glScreenSize = Size(0,0);
 Size glCartSize = Size(250, 150);
 double glCartX1 = 0,  glCartX2 = 0;
 double ingredientInCartWidth = 50;
-
+List <Ingredient> glCartIngredients = [];
+List <Ingredient> glFinalIngredients = [];
+Product glProductToMake = Product('');
+Size knifeSize = Size(163,150);
+final double cutSize = 90;
 const kpi = 3.1415926/180;
 
 printD(text){
@@ -78,8 +74,11 @@ Future <void> showResultPage(context, String msg1, String msg2, bool isWin) asyn
 
 class Ingredient {
   String name = '', img = '';
+  int state = 0;
+  String cutPieceName = '';
+  int cutQuantity = 1;
 
-  Ingredient(this.name, this.img);
+  Ingredient(this.name, this.img, [this.cutPieceName='', this.cutQuantity=5]);
 
   @override
   String toString() {
@@ -87,12 +86,17 @@ class Ingredient {
   }
 }
 
+List <Ingredient> cut_ingredients = [
+  Ingredient('Кусочек колбасы', 'кус_колб.png'),
+  Ingredient('Кусочек помидора', 'pomidor_kol.png'),
+];
+
 List <Ingredient> ingredients = [
   Ingredient('Капуста',   'kapusta.png'),
   Ingredient('Морковка',  'morkovka.png'),
   Ingredient('Буряк',     'burak.png'),
   Ingredient('Сосиска',   'sosiska.png'),
-  Ingredient('Колбаса',   'kolbasa.png'),
+  Ingredient('Колбаса',   'колб2.png', 'Кусочек колбасы', 4),
   Ingredient('Сыр',       'syr.webp'),
   Ingredient('Картошка',  'kartoshka.webp'),
   Ingredient('Тесто',     'testo.png'),
@@ -100,7 +104,7 @@ List <Ingredient> ingredients = [
   Ingredient('Ложка',     'Ложка.webp'),
   Ingredient('Лук',       'Лук.png'),
   Ingredient('Чеснок',    'Чеснок.webp'),
-  Ingredient('Помидор',   'pomidor_kol.png'),
+  Ingredient('Помидор',   'помидор1.png', 'Кусочек помидора', 3),
   Ingredient('Соль',      'Соль.png'),
   Ingredient('Сахар',     'Сахар.png'),
   Ingredient('Майонез',   'Майонез.webp'),
@@ -128,13 +132,15 @@ List <Ingredient> ingredients = [
 ];
 
 class IngredientOnMap {
+  int layerNumber = 0;
   Ingredient ingredient;
   Offset position = const Offset(0, 0);
   Size size = Size(80, 80);
-  bool isDragging = false, isEnabled = true;
+  bool isDragging = false, isEnabled = true, isResizeMode = false;
   Widget? widget;
+  int state = 0, idx = -1, cutQuantity = 0;
 
-  IngredientOnMap(this.ingredient, this.position);
+  IngredientOnMap(this.ingredient, this.position, {this.cutQuantity=0});
 
   @override
   String toString() {
@@ -213,7 +219,6 @@ Future <void> glRestoreMRL() async {
 
  */
 
-
 glShowRequiredIngredients(context, Product product) async {
   Size size = MediaQuery.of(context).size;
   double width = size.width*0.8;
@@ -285,3 +290,24 @@ glShowRequiredIngredients(context, Product product) async {
   );
 }
 
+void showIngredient(context, Ingredient ingredient) {
+  //speak(ingredient.name);
+  if (ingredient.img == '') {
+    return;
+  }
+  showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(ingredient.name, textScaleFactor: 2, textAlign: TextAlign.center,),
+              SizedBox(height: 15,),
+              Image.asset('assets/images/${ingredient.img}'),
+            ],
+          ),
+        );
+      }
+  );
+}
